@@ -81,7 +81,8 @@ def pregunta_03():
             ),
             (
                 "mlpregressor",
-                    MLPRegressor(),
+                    MLPRegressor(
+                        ),
             ),
         ],
     )
@@ -127,7 +128,7 @@ def pregunta_04():
     gridsearchcv = GridSearchCV(
         estimator=estimator,
         param_grid=param_grid,
-        cv=5,
+        cv=4,
         scoring="r2", 
     )
 
@@ -161,3 +162,5 @@ def pregunta_05():
 
     # Retorne el mse de entrenamiento y prueba
     return mse_train, mse_test
+
+print(pregunta_05())
