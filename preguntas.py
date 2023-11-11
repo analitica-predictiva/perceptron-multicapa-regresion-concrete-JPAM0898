@@ -16,16 +16,16 @@ def pregunta_01():
     Carga y separación de los datos en `X` `y`
     """
     # Lea el archivo `concrete.csv` y asignelo al DataFrame `df`
-    df = ____  
+    df = pd.read_csv("concrete.csv")
 
     # Asigne la columna `strength` a la variable `y`.
-    ____ = ____  
+    y = df["strength"]  
 
     # Asigne una copia del dataframe `df` a la variable `X`.
-    ____ = ____.____(____)  
+    x = df.copy()
 
     # Remueva la columna `strength` del DataFrame `X`.
-    ____.____(____)  
+    x = x.drop(columns=["strength"])
 
     # Retorne `X` y `y`
     return x, y
@@ -37,7 +37,7 @@ def pregunta_02():
     """
 
     # Importe train_test_split
-    from ____ import ____
+    from sklearn.model_selection import train_test_split
 
     # Cargue los datos de ejemplo y asigne los resultados a `X` y `y`.
     x, y = pregunta_01()
@@ -49,13 +49,12 @@ def pregunta_02():
         x_test,  
         y_train,  
         y_test,  
-    ) = ____(  
-        ____,  
-        ____,  
-        test_size=____,  
-        random_state=____,  
-    )  
-
+    ) = train_test_split(
+        x,
+        y,
+        test_size=0.25,
+        random_state=12453,
+    )
     # Retorne `X_train`, `X_test`, `y_train` y `y_test`
     return x_train, x_test, y_train, y_test
 
@@ -68,19 +67,21 @@ def pregunta_03():
     # Importe MLPRegressor
     # Importe MinMaxScaler
     # Importe Pipeline
-    from ____ import ____
+    from sklearn.neural_network import MLPRegressor
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.pipeline import Pipeline
 
     # Cree un pipeline que contenga un estimador MinMaxScaler y un estimador
     # MLPRegressor
     pipeline = Pipeline(
         steps=[
             (
-                "minmaxscaler",
-                ____(___),  
+                "minmaxscaler",     
+                MinMaxScaler(),  
             ),
             (
                 "mlpregressor",
-                ____(____),  
+                    MLPRegressor(),
             ),
         ],
     )
@@ -107,14 +108,14 @@ def pregunta_04():
     #   * Un máximo de 5000 iteraciones
     #   * Use parada temprana
 
-    param_grid = {
-        ___: ____,  
-        ___: ____,  
-        ___: ____,  
-        ___: ____,  
-        ___: ____,  
-        ___: ____,  
-        ___: ____,  
+    param_grid = { 
+        "mlpregressor__hidden_layer_sizes": [(i,) for i in range(1, 9)],
+        "mlpregressor__activation": ["relu"],
+        "mlpregressor__learning_rate": ["adaptive"],
+        "mlpregressor__momentum": [0.7, 0.8, 0.9],
+        "mlpregressor__learning_rate_init": [0.01, 0.05, 0.1],
+        "mlpregressor__max_iter": [5000],
+        "mlpregressor__early_stopping": [True],  
     }
 
     estimator = pregunta_03()
@@ -126,8 +127,8 @@ def pregunta_04():
     gridsearchcv = GridSearchCV(
         estimator=estimator,
         param_grid=param_grid,
-        ___ = ____  
-        ___ = ____  
+        cv=5,
+        scoring="r2", 
     )
 
     return gridsearchcv
@@ -139,7 +140,7 @@ def pregunta_05():
     """
 
     # Importe mean_squared_error
-    from ____ import ____
+    from sklearn.metrics import mean_squared_error
 
     # Cargue las variables.
     x_train, x_test, y_train, y_test = pregunta_02()
@@ -151,18 +152,12 @@ def pregunta_05():
     estimator.fit(x_train, y_train)  #
 
     # Pronostique para las muestras de entrenamiento y validacion
-    y_trian_pred = ____.____(____)  
-    y_test_pred = ____.____(____)  
+    y_train_pred = estimator.predict(x_train)
+    y_test_pred =   estimator.predict(x_test)
 
     # Calcule el error cuadrático medio de las muestras
-    mse_train = ____(  
-        ___,  
-        ___,  
-    )
-    mse_test = ____(  
-        ___,  
-        ___,  
-    )
+    mse_train = mean_squared_error(y_train, y_train_pred)
+    mse_test = mean_squared_error(y_test, y_test_pred)
 
     # Retorne el mse de entrenamiento y prueba
     return mse_train, mse_test
